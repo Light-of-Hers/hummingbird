@@ -320,7 +320,7 @@ def benchmark(args, dataset_folder, model_folder, dataset):
                     if args.validate:
                         np.testing.assert_allclose(scorer.predictions, trainer.predictions, rtol=1e-5, atol=1e-6)
 
-            args.operator = outer_ops
+            # args.operator = outer_ops
     
     stop = False
     for op in operators.split(","):
