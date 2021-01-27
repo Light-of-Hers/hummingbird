@@ -134,10 +134,12 @@ def get_tree_implementation_by_config_or_depth(extra_config, max_depth, low=3, h
 
     Returns: A tree implementation
     """
+    return TreeImpl.gemm
     if constants.TREE_IMPLEMENTATION not in extra_config:
         if max_depth is not None and max_depth <= low:
             return TreeImpl.gemm
         elif max_depth is not None and max_depth <= high:
+            # return TreeImpl.gemm
             return TreeImpl.perf_tree_trav
         else:
             return TreeImpl.tree_trav

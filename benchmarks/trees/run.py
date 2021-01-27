@@ -219,7 +219,9 @@ def benchmark(args, dataset_folder, model_folder, dataset):
     operators = args.operator
     if operators == "all":
         operators = "rf,lgbm,xgb"
-    for op in operators.split(","):
+
+    def _doit(op):
+    # for op in operators.split(","):
         print("Running '%s' ..." % op)
         results[op] = {}
         model_name = op + "-" + str(args.ntrees) + "-" + str(args.max_depth) + "-" + str(args.cpus)
@@ -319,6 +321,17 @@ def benchmark(args, dataset_folder, model_folder, dataset):
                         np.testing.assert_allclose(scorer.predictions, trainer.predictions, rtol=1e-5, atol=1e-6)
 
             args.operator = outer_ops
+    
+    stop = False
+    for op in operators.split(","):
+        try:
+            _doit(op)
+        except StopIteration:
+            stop = True
+            pass
+    if stop:
+        raise StopIteration
+
     return results
 
 
@@ -332,16 +345,23 @@ def main():
     results = {}
     set_signal()
 
+    stop = False
     for dataset in args.dataset.split(","):
-        print("Dataset '%s' ..." % dataset)
-        dataset_folder = os.path.join(args.datadir, dataset)
-        model_folder = os.path.join(args.modeldir, dataset)
-        results.update({dataset: benchmark(args, dataset_folder, model_folder, dataset)})
-        print(json.dumps({dataset: results[dataset]}, indent=2, sort_keys=True))
-        output = json.dumps(results, indent=2)
-        output_file = open(args.output, "w")
-        output_file.write(output + "\n")
-        output_file.close()
+        try:       
+            print("Dataset '%s' ..." % dataset)
+            dataset_folder = os.path.join(args.datadir, dataset)
+            model_folder = os.path.join(args.modeldir, dataset)
+            results.update({dataset: benchmark(args, dataset_folder, model_folder, dataset)})
+            print(json.dumps({dataset: results[dataset]}, indent=2, sort_keys=True))
+            output = json.dumps(results, indent=2)
+            output_file = open(args.output, "w")
+            output_file.write(output + "\n")
+            output_file.close()
+        except StopIteration:
+            stop = True
+            pass
+    if stop:
+        raise StopIteration
 
     print("All results written to file '%s'" % args.output)
 

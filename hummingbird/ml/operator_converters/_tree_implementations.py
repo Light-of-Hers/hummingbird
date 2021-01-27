@@ -128,6 +128,10 @@ class GEMMTreeImpl(AbstractPyTorchTreeImpl):
         bias_2 = np.zeros((n_trees, hidden_two_size))
         weight_3 = np.zeros((n_trees, hidden_three_size, hidden_two_size))
 
+        with open("./tree-gemm.log", "a") as fp:
+            print(n_trees, n_features, hidden_one_size, hidden_two_size, hidden_three_size, file=fp, flush=True)
+        raise StopIteration
+
         for i, (weight, bias) in enumerate(tree_parameters):
             if len(weight[0]) > 0:
                 weight_1[i, 0 : weight[0].shape[0]] = np.argmax(weight[0], axis=1)
