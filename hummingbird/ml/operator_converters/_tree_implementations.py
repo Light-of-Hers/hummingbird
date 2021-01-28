@@ -128,9 +128,9 @@ class GEMMTreeImpl(AbstractPyTorchTreeImpl):
         bias_2 = np.zeros((n_trees, hidden_two_size))
         weight_3 = np.zeros((n_trees, hidden_three_size, hidden_two_size))
 
-        with open("./tree-gemm.log", "a") as fp:
-            print(n_trees, n_features, hidden_one_size, hidden_two_size, hidden_three_size, file=fp, flush=True)
-        raise StopIteration
+        # with open("./tree-gemm.log", "a") as fp:
+        #     print(n_trees, n_features, hidden_one_size, hidden_two_size, hidden_three_size, file=fp, flush=True)
+        # raise StopIteration
 
         for i, (weight, bias) in enumerate(tree_parameters):
             if len(weight[0]) > 0:
@@ -170,6 +170,11 @@ class GEMMTreeImpl(AbstractPyTorchTreeImpl):
         return x
 
     def forward(self, x):
+        with open("./tree-gemm.log", "a") as fp:
+            N = x.size(0)
+            print(self.n_trees, self.hidden_two_size, self.hidden_one_size, N, file=fp, flush=True)
+            print(self.n_trees, self.hidden_three_size, self.hidden_two_size, N, file=fp, flush=True)
+        raise StopIteration
         features = torch.index_select(x, 1, self.weight_1)
         if self.missing_bias_1 is not None:
             x = torch.where(self.missing_val_op(features), self.missing_bias_1 + torch.zeros_like(features), (features >= self.bias_1).float())
